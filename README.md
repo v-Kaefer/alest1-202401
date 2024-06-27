@@ -30,3 +30,14 @@ int[] listRepeat(int[] l)
 int[] union(int[] l1, int[] l2)
 6. Método que retorna a intersecção de l1 e l2
 int[] intersect(int[] l1, int[] l2)
+
+# Trabalho 2
+
+## O que deve ser implementado:
+
+* Leitura do arquivo de entrada da simulação.
+* Processamento passo a passo ou contínua?
+* Iniciar a simulação em um tempo t=0 e a cada <ENTER> que o usuário pressionar ele avança uma unidade de tempo (um ciclo).
+* Caso o usuário digite "C" a simulação segue de forma contínua sem interrupção produzindo os resultados.
+
+## Cada pedido processado deve ser inserido em uma Árvore Binária de Pesquisa na ordem em que eles vão sendo produzidos.
