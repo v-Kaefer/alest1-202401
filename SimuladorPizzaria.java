@@ -122,12 +122,13 @@ public class SimuladorPizzaria {
                     }
                 }
                 csvData.append(tempoAtual).append(",");
-                csvData.append(filaPedidos.getTamanho()).append(",");
+                csvData.append(getIdsPizzas(filaPedidos)).append(",");
                 csvData.append(pedidoEmProducao != null ? 1 : 0).append(",");
-                csvData.append(pedidosProcessados).append("\n");
+                csvData.append(getIdsPizzas(filaEspera)).append("\n");
 
                 tempoAtual++;
             }
+            
             
         }
 
@@ -137,6 +138,7 @@ public class SimuladorPizzaria {
         abp.emOrdem();
         // Write CSV data to a file
         escreverCSV("output.csv", titulos, csvData.toString().split("\n"));
+        
     }
         /*if (contaPedidosMaisDemorados > 0) {
             System.out.println("Pedidos mais demorados: ");
@@ -174,13 +176,13 @@ public class SimuladorPizzaria {
             // Escrever os títulos
             for (String titulo : titulos) {
                 escritor.append(titulo);
-                escritor.append(",");
+                escritor.append(" | ");
             }
             escritor.append("\n");
 
             // Escrever os dados
             for (String dado : dados) {
-                escritor.append(dado.replace("," , "|"));
+                escritor.append(dado.replace("," , " | "));
                 escritor.append("\n");
             }
         } catch (IOException e) {
