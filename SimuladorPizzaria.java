@@ -46,10 +46,6 @@ public class SimuladorPizzaria {
             }
 
 
-
-            
-
-
             if (input.equalsIgnoreCase("C")) {
                 while (!filaPedidos.estaVazia() || pedidoEmProducao != null) {
                     // Simulação contínua
@@ -84,9 +80,9 @@ public class SimuladorPizzaria {
 
                             // Move as ordens completas para "Prontos"
                             csvData.append(tempoAtual).append(",");
-                            csvData.append(filaPedidos.getTamanho() + filaEspera.getTamanho()).append(",");
-                            csvData.append(0).append(",");
-                            csvData.append(pedidosProcessados).append("\n");
+                            csvData.append(getIdsPizzas(filaPedidos)).append(",");
+                            csvData.append(pedidoEmProducao.codigo).append(",");
+                            csvData.append(getIdsPizzas(filaEspera)).append("\n");
 
                             // Verifica se a filaEspera está vazia
                             if (!filaEspera.estaVazia()) {
@@ -100,9 +96,9 @@ public class SimuladorPizzaria {
                     }
 
                     csvData.append(tempoAtual).append(",");
-                    csvData.append(filaPedidos.getTamanho() + filaEspera.getTamanho()).append(",");
-                    csvData.append(pedidoEmProducao != null ? 1 : 0).append(",");
-                    csvData.append(pedidosProcessados).append("\n");
+                    csvData.append(getIdsPizzas(filaPedidos)).append(",");
+                    csvData.append(pedidoEmProducao != null ? pedidoEmProducao.codigo : 0).append(",");
+                    csvData.append(getIdsPizzas(filaEspera)).append("\n");
 
                     tempoAtual++;
                 }
