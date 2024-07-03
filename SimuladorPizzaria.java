@@ -4,7 +4,7 @@ import java.io.IOException;
 
 public class SimuladorPizzaria {
     public static void main(String[] args) {
-        String arquivo = "pedidos_pizza_15.csv"; // Substitua pelo caminho correto do arquivo
+        String arquivo = "CasosDeTeste/pedidos_pizza_15.csv"; // Substitua pelo caminho correto do arquivo
         FilaPedidos filaPedidos = new FilaPedidos();
         ABP abp = new ABP();
 
@@ -26,7 +26,7 @@ public class SimuladorPizzaria {
                 tempoRestante = pedidoEmProducao.preparo;
                 System.out.println("Produzindo pedido: " + pedidoEmProducao.codigo);
             }
-
+            // 
             if (pedidoEmProducao != null) {
                 tempoRestante--;
                 if (tempoRestante == 0) {
@@ -50,7 +50,13 @@ public class SimuladorPizzaria {
     private static void carregarPedidos(String arquivo, FilaPedidos filaPedidos) {
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
             String linha;
+            boolean pulaPrimeiraLinha = true;
             while ((linha = br.readLine()) != null) {
+                // Pula a primeira linha
+                if (pulaPrimeiraLinha) { 
+                    pulaPrimeiraLinha = false;
+                    continue; 
+                }
                 String[] dados = linha.split(",");
                 int codigo = Integer.parseInt(dados[0]);
                 String sabor = dados[1];
