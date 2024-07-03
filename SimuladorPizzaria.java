@@ -1,12 +1,20 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Scanner;
 
 public class SimuladorPizzaria {
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
         String arquivo = "CasosDeTeste/pedidos_pizza_15.csv"; // Substitua pelo caminho correto do arquivo
         FilaPedidos filaPedidos = new FilaPedidos();
+        FilaPedidos filaEspera = new FilaPedidos();
         ABP abp = new ABP();
+
+        // Processar a simulação
+        String[] titulos = {"Instante de Tempo t", "Fila de pedidos", "Em produção", "Prontos"};
+        StringBuilder csvData = new StringBuilder();
 
         // Carregar pedidos do arquivo CSV
         carregarPedidos(arquivo, filaPedidos);
@@ -17,62 +25,111 @@ public class SimuladorPizzaria {
         int pedidosProcessados = 0;
         Pedido pedidoEmProducao = null;
         int tempoRestante = 0;
-        int tempoMaisDemorado = 0;
-        Pedido[] pedidosMaisDemorados = new Pedido [1];
-        int contaPedidosMaisDemorados = 0;
 
         while (!filaPedidos.estaVazia() || pedidoEmProducao != null) {
             System.out.println("Instante de Tempo t=" + tempoAtual);
+            String input = sc.nextLine();
 
-            if (pedidoEmProducao == null && !filaPedidos.estaVazia()) {
-                pedidoEmProducao = filaPedidos.desenfileirar();
-                tempoRestante = pedidoEmProducao.preparo;
-                System.out.println("Produzindo pedido: " + pedidoEmProducao.codigo);
-            }
-            // 
-            if (pedidoEmProducao != null) {
-                tempoRestante--;
-                if (tempoRestante == 0) {
-                    System.out.println("Pedido pronto: " + pedidoEmProducao.codigo);
-                    abp.inserir(pedidoEmProducao);
-                    pedidosProcessados++;
-                    tempoTotal = tempoAtual;
 
-                    /* Lógica p/ pedido mais demorado
-                    if (pedidoEmProducao.preparo > tempoMaisDemorado) {
-                        tempoMaisDemorado = pedidoEmProducao.preparo;
-
-                        // Reseta o Array com tamanho 1 (remover array?)
-                        pedidosMaisDemorados = new Pedido[1];
-                        pedidosMaisDemorados[contaPedidosMaisDemorados] = pedidoEmProducao;
-                        contaPedidosMaisDemorados++;
-                    } else if (pedidoEmProducao.preparo == tempoMaisDemorado) {
-                        Pedido [] tempArray = new Pedido [contaPedidosMaisDemorados + 1];
-                        System.arraycopy(pedidosMaisDemorados, 0, tempArray, 0, contaPedidosMaisDemorados);
-                        pedidosMaisDemorados = tempArray;
-                        pedidosMaisDemorados[contaPedidosMaisDemorados] = pedidoEmProducao;
-                        contaPedidosMaisDemorados++;
+            if (!filaPedidos.estaVazia()) {
+                Pedido proximoPedido = filaPedidos.verProximo();
+                if (proximoPedido.instante == tempoAtual) {
+                    if (pedidoEmProducao == null) {
+                        pedidoEmProducao = filaPedidos.desenfileirar();
+                        tempoRestante = pedidoEmProducao.preparo;
+                        System.out.println("Pedido em produção: " + pedidoEmProducao.codigo);
+                    } else {
+                        System.out.println("Pedido adicionado à fila de espera: " + proximoPedido.codigo);
+                        filaEspera.enfileirar(proximoPedido);
                     }
-                    */
-
-                    pedidoEmProducao = null;
                 }
             }
 
-            tempoAtual++;
+
+
+            
+
+
+            if (input.equalsIgnoreCase("C")) {
+                while (!filaPedidos.estaVazia() || pedidoEmProducao != null) {
+                    // Simulação contínua
+                    if (pedidoEmProducao == null && !filaPedidos.estaVazia()) {
+                        pedidoEmProducao = filaPedidos.desenfileirar();
+                        tempoRestante = pedidoEmProducao.preparo;
+                        System.out.println("Produzindo pedido: " + pedidoEmProducao.codigo);
+                    }
+
+
+                    if (!filaPedidos.estaVazia()) {
+                        Pedido proximoPedido = filaPedidos.verProximo();
+                        if (proximoPedido.instante == tempoAtual) {
+                            if (pedidoEmProducao == null) {
+                                pedidoEmProducao = filaPedidos.desenfileirar();
+                                tempoRestante = pedidoEmProducao.preparo;
+                                System.out.println("Pedido em produção: " + pedidoEmProducao.codigo);
+                            } else {
+                                System.out.println("Pedido adicionado à fila de espera: " + proximoPedido.codigo);
+                                filaEspera.enfileirar(proximoPedido);
+                            }
+                        }
+                    }
+
+                    if (pedidoEmProducao != null) {
+                        tempoRestante--;
+                        if (tempoRestante == 0) {
+                            System.out.println("Pedido pronto: " + pedidoEmProducao.codigo);
+                            abp.inserir(pedidoEmProducao);
+                            pedidosProcessados++;
+                            tempoTotal = tempoAtual;
+
+                            pedidoEmProducao = null;
+                        }
+                    }
+                    tempoAtual++;
+                }
+            } else {
+                // Passo a passo
+                if (pedidoEmProducao == null && !filaPedidos.estaVazia()) {
+                    pedidoEmProducao = filaPedidos.desenfileirar();
+                    tempoRestante = pedidoEmProducao.preparo;
+                    System.out.println("Produzindo pedido: " + pedidoEmProducao.codigo);
+                }
+
+                if (pedidoEmProducao != null) {
+                    tempoRestante--;
+                    if (tempoRestante == 0) {
+                        System.out.println("Pedido pronto: " + pedidoEmProducao.codigo);
+                        abp.inserir(pedidoEmProducao);
+                        pedidosProcessados++;
+                        tempoTotal = tempoAtual;
+
+                        pedidoEmProducao = null;
+                    }
+                }
+                csvData.append(tempoAtual).append(",");
+                csvData.append(filaPedidos.getTamanho()).append(",");
+                csvData.append(pedidoEmProducao != null ? 1 : 0).append(",");
+                csvData.append(pedidosProcessados).append("\n");
+
+                tempoAtual++;
+            }
+            
         }
 
         System.out.println("Total de pedidos processados: " + pedidosProcessados);
         System.out.println("Total de tempo executado: " + tempoTotal);
         System.out.print("Pedidos em ordem: ");
         abp.emOrdem();
+        // Write CSV data to a file
+        escreverCSV("output.csv", titulos, csvData.toString().split("\n"));
+    }
         /*if (contaPedidosMaisDemorados > 0) {
             System.out.println("Pedidos mais demorados: ");
             for (int i = 0; i < contaPedidosMaisDemorados; i++) {
                 System.out.println("Pedido: " + pedidosMaisDemorados[i].codigo);
             }
         }*/
-    }
+    
 
     private static void carregarPedidos(String arquivo, FilaPedidos filaPedidos) {
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
@@ -96,4 +153,24 @@ public class SimuladorPizzaria {
             e.printStackTrace();
         }
     }
+
+    private static void escreverCSV(String arquivo, String[] titulos, String[] dados) {
+        try (FileWriter escritor = new FileWriter(arquivo)) {
+            // Escrever os títulos
+            for (String titulo : titulos) {
+                escritor.append(titulo);
+                escritor.append(",");
+            }
+            escritor.append("\n");
+
+            // Escrever os dados
+            for (String dado : dados) {
+                escritor.append(dado.replace("," , "|"));
+                escritor.append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

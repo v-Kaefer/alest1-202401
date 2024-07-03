@@ -105,6 +105,13 @@ class FilaPedidos {
     public int getTamanho() {
         return this.tamanho;
     }
+
+    public Pedido verProximo() {
+        if (this.inicio == null) {
+            return null;
+        }
+        return this.inicio.pedido;
+    }
 }
 
 // Classe NodoFila para representar cada nodo na fila
