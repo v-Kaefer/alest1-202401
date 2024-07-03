@@ -106,6 +106,10 @@ class FilaPedidos {
         return this.tamanho;
     }
 
+    public NodoFila getInicio() {
+        return this.inicio;
+    }
+
     public Pedido verProximo() {
         if (this.inicio == null) {
             return null;

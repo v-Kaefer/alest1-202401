@@ -82,9 +82,28 @@ public class SimuladorPizzaria {
                             pedidosProcessados++;
                             tempoTotal = tempoAtual;
 
-                            pedidoEmProducao = null;
+                            // Move as ordens completas para "Prontos"
+                            csvData.append(tempoAtual).append(",");
+                            csvData.append(filaPedidos.getTamanho() + filaEspera.getTamanho()).append(",");
+                            csvData.append(0).append(",");
+                            csvData.append(pedidosProcessados).append("\n");
+
+                            // Verifica se a filaEspera está vazia
+                            if (!filaEspera.estaVazia()) {
+                                pedidoEmProducao = filaEspera.desenfileirar();
+                                tempoRestante = pedidoEmProducao.preparo;
+                                System.out.println("Pedido em produção: " + pedidoEmProducao.codigo);
+                            } else {
+                                pedidoEmProducao = null;
+                            }
                         }
                     }
+
+                    csvData.append(tempoAtual).append(",");
+                    csvData.append(filaPedidos.getTamanho() + filaEspera.getTamanho()).append(",");
+                    csvData.append(pedidoEmProducao != null ? 1 : 0).append(",");
+                    csvData.append(pedidosProcessados).append("\n");
+
                     tempoAtual++;
                 }
             } else {
@@ -171,6 +190,16 @@ public class SimuladorPizzaria {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static String getIdsPizzas (FilaPedidos fila) {
+        StringBuilder ids = new StringBuilder();
+        NodoFila atual = fila.getInicio();
+        while (atual != null) {
+            ids.append(atual.pedido.codigo).append(" ");
+            atual = atual.proximo;
+        }
+        return ids.toString().trim();
     }
 
 }
