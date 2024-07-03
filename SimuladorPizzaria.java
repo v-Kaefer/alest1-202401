@@ -17,6 +17,9 @@ public class SimuladorPizzaria {
         int pedidosProcessados = 0;
         Pedido pedidoEmProducao = null;
         int tempoRestante = 0;
+        int tempoMaisDemorado = 0;
+        Pedido[] pedidosMaisDemorados = new Pedido [1];
+        int contaPedidosMaisDemorados = 0;
 
         while (!filaPedidos.estaVazia() || pedidoEmProducao != null) {
             System.out.println("Instante de Tempo t=" + tempoAtual);
@@ -34,6 +37,24 @@ public class SimuladorPizzaria {
                     abp.inserir(pedidoEmProducao);
                     pedidosProcessados++;
                     tempoTotal = tempoAtual;
+
+                    /* Lógica p/ pedido mais demorado
+                    if (pedidoEmProducao.preparo > tempoMaisDemorado) {
+                        tempoMaisDemorado = pedidoEmProducao.preparo;
+
+                        // Reseta o Array com tamanho 1 (remover array?)
+                        pedidosMaisDemorados = new Pedido[1];
+                        pedidosMaisDemorados[contaPedidosMaisDemorados] = pedidoEmProducao;
+                        contaPedidosMaisDemorados++;
+                    } else if (pedidoEmProducao.preparo == tempoMaisDemorado) {
+                        Pedido [] tempArray = new Pedido [contaPedidosMaisDemorados + 1];
+                        System.arraycopy(pedidosMaisDemorados, 0, tempArray, 0, contaPedidosMaisDemorados);
+                        pedidosMaisDemorados = tempArray;
+                        pedidosMaisDemorados[contaPedidosMaisDemorados] = pedidoEmProducao;
+                        contaPedidosMaisDemorados++;
+                    }
+                    */
+
                     pedidoEmProducao = null;
                 }
             }
@@ -45,6 +66,12 @@ public class SimuladorPizzaria {
         System.out.println("Total de tempo executado: " + tempoTotal);
         System.out.print("Pedidos em ordem: ");
         abp.emOrdem();
+        /*if (contaPedidosMaisDemorados > 0) {
+            System.out.println("Pedidos mais demorados: ");
+            for (int i = 0; i < contaPedidosMaisDemorados; i++) {
+                System.out.println("Pedido: " + pedidosMaisDemorados[i].codigo);
+            }
+        }*/
     }
 
     private static void carregarPedidos(String arquivo, FilaPedidos filaPedidos) {
