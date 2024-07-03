@@ -41,3 +41,13 @@ int[] intersect(int[] l1, int[] l2)
 * Caso o usuário digite "C" a simulação segue de forma contínua sem interrupção produzindo os resultados.
 
 ## Cada pedido processado deve ser inserido em uma Árvore Binária de Pesquisa na ordem em que eles vão sendo produzidos.
+
+Os resultados finais a serem gerados são: 
+ - Total de pedidos processados 
+ - Total de tempo executado 
+ - Pedido mais demorado (se tiver mais de um mostrar todos) 
+ - Um CSV com a situação da fila a cada instante t, conforme exemplo na página anterior. 
+- Um CSV com o caminhamento em ordem central da ABP gerada pelos pedidos que foram sendo processados, 
+contendo apenas o código do pedido e separado por vírgula. 
+Observações: 
+Não pode ser usado ArrayList nem qualquer outra estrutura para manipulação de listas do Java.
