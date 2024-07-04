@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class SimuladorPizzaria {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        String arquivo = "CasosDeTeste/pedidos_pizza_15.csv"; // Substitua pelo caminho correto do arquivo
+        String arquivo = "CasosDeTeste/pedidos_pizza_1000.csv"; // Substitua pelo caminho correto do arquivo
         FilaPedidos filaPedidos = new FilaPedidos();
         FilaPedidos filaEspera = new FilaPedidos();
         ABP abp = new ABP();
@@ -41,6 +41,33 @@ public class SimuladorPizzaria {
                     } else {
                         System.out.println("Pedido adicionado à fila de espera: " + proximoPedido.codigo);
                         filaEspera.enfileirar(proximoPedido);
+                    }
+                }
+            }
+
+            // Process the orders in production or waitlist based on the current time
+            if (pedidoEmProducao != null && tempoRestante > 0) {
+                tempoRestante--;
+                if (tempoRestante == 0) {
+                    // Complete the order processing and update the CSV data
+                    System.out.println("Pedido pronto: " + pedidoEmProducao.codigo);
+                    abp.inserir(pedidoEmProducao);
+                    pedidosProcessados++;
+                    tempoTotal = tempoAtual;
+
+                    // Update the CSV data with the order status
+                    csvData.append(tempoAtual).append(",");
+                    csvData.append(getIdsPizzas(filaPedidos)).append(",");
+                    csvData.append(pedidoEmProducao.codigo).append(",");
+                    csvData.append(getIdsPizzas(filaEspera)).append("\n");
+
+                    // Move the next order from the waitlist to production if available
+                    if (!filaEspera.estaVazia()) {
+                        pedidoEmProducao = filaEspera.desenfileirar();
+                        tempoRestante = pedidoEmProducao.preparo;
+                        System.out.println("Pedido em produção: " + pedidoEmProducao.codigo);
+                    } else {
+                        pedidoEmProducao = null;
                     }
                 }
             }
@@ -158,7 +185,7 @@ public class SimuladorPizzaria {
                     pulaPrimeiraLinha = false;
                     continue; 
                 }
-                String[] dados = linha.split(",");
+                String[] dados = linha.split(";");
                 int codigo = Integer.parseInt(dados[0]);
                 String sabor = dados[1];
                 int instante = Integer.parseInt(dados[2]);
