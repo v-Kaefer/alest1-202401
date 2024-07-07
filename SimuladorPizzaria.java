@@ -10,6 +10,7 @@ public class SimuladorPizzaria {
         String arquivo = "CasosDeTeste/pedidos_pizza_1000.csv"; // Substitua pelo caminho correto do arquivo
         FilaPedidos filaPedidos = new FilaPedidos();
         FilaPedidos filaEspera = new FilaPedidos();
+        FilaPedidos filaProntos = new FilaPedidos();
         ABP abp = new ABP();
 
         // Processar a simulação
@@ -19,7 +20,6 @@ public class SimuladorPizzaria {
         // Carregar pedidos do arquivo CSV
         carregarPedidos(arquivo, filaPedidos);
 
-        // Processar a simulação
         int tempoAtual = 0;
         int tempoTotal = 0;
         int pedidosProcessados = 0;
@@ -29,7 +29,6 @@ public class SimuladorPizzaria {
         while (!filaPedidos.estaVazia() || pedidoEmProducao != null) {
             System.out.println("Instante de Tempo t=" + tempoAtual);
             String input = sc.nextLine();
-
 
             if (!filaPedidos.estaVazia()) {
                 Pedido proximoPedido = filaPedidos.verProximo();
@@ -45,23 +44,23 @@ public class SimuladorPizzaria {
                 }
             }
 
-            // Process the orders in production or waitlist based on the current time
+            // Processa as ordens em produção ou espera baseado no instante
             if (pedidoEmProducao != null && tempoRestante > 0) {
                 tempoRestante--;
                 if (tempoRestante == 0) {
-                    // Complete the order processing and update the CSV data
+                    // Completa a ordem e atualiza o CSV
                     System.out.println("Pedido pronto: " + pedidoEmProducao.codigo);
                     abp.inserir(pedidoEmProducao);
                     pedidosProcessados++;
                     tempoTotal = tempoAtual;
 
-                    // Update the CSV data with the order status
-                    csvData.append(tempoAtual).append(",");
-                    csvData.append(getIdsPizzas(filaPedidos)).append(",");
-                    csvData.append(pedidoEmProducao.codigo).append(",");
-                    csvData.append(getIdsPizzas(filaEspera)).append("\n");
+                    // Atualiza o CSV
+                    csvData.append(tempoAtual).append("|");
+                    csvData.append(getIdsPizzas(filaPedidos)).append("|");
+                    csvData.append(pedidoEmProducao.codigo).append("|");
+                    csvData.append(getIdsPizzas(filaProntos)).append("\n");
 
-                    // Move the next order from the waitlist to production if available
+                    // Move a próxima ordem da fila de espera para em produção, se disponível
                     if (!filaEspera.estaVazia()) {
                         pedidoEmProducao = filaEspera.desenfileirar();
                         tempoRestante = pedidoEmProducao.preparo;
@@ -102,14 +101,15 @@ public class SimuladorPizzaria {
                         if (tempoRestante == 0) {
                             System.out.println("Pedido pronto: " + pedidoEmProducao.codigo);
                             abp.inserir(pedidoEmProducao);
+                            filaProntos.enfileirar(pedidoEmProducao);
                             pedidosProcessados++;
                             tempoTotal = tempoAtual;
 
                             // Move as ordens completas para "Prontos"
-                            csvData.append(tempoAtual).append(",");
-                            csvData.append(getIdsPizzas(filaPedidos)).append(",");
-                            csvData.append(pedidoEmProducao.codigo).append(",");
-                            csvData.append(getIdsPizzas(filaEspera)).append("\n");
+                            csvData.append(tempoAtual).append("|");
+                            csvData.append(getIdsPizzas(filaPedidos)).append("|");
+                            csvData.append(pedidoEmProducao.codigo).append("|");
+                            csvData.append(getIdsPizzas(filaProntos)).append("\n");
 
                             // Verifica se a filaEspera está vazia
                             if (!filaEspera.estaVazia()) {
@@ -121,11 +121,15 @@ public class SimuladorPizzaria {
                             }
                         }
                     }
+                    
+                    if (pedidoEmProducao != null && tempoRestante == 0) {
+                        filaProntos.enfileirar(pedidoEmProducao);
+                    }
 
-                    csvData.append(tempoAtual).append(",");
-                    csvData.append(getIdsPizzas(filaPedidos)).append(",");
-                    csvData.append(pedidoEmProducao != null ? pedidoEmProducao.codigo : 0).append(",");
-                    csvData.append(getIdsPizzas(filaEspera)).append("\n");
+                    csvData.append(tempoAtual).append("|");
+                    csvData.append(getIdsPizzas(filaPedidos)).append("|");
+                    csvData.append(pedidoEmProducao != null ? pedidoEmProducao.codigo : 0).append("|");
+                    csvData.append(getIdsPizzas(filaProntos)).append("\n");
 
                     tempoAtual++;
                 }
@@ -148,32 +152,27 @@ public class SimuladorPizzaria {
                         pedidoEmProducao = null;
                     }
                 }
-                csvData.append(tempoAtual).append(",");
-                csvData.append(getIdsPizzas(filaPedidos)).append(",");
-                csvData.append(pedidoEmProducao != null ? 1 : 0).append(",");
-                csvData.append(getIdsPizzas(filaEspera)).append("\n");
+                
+                if (pedidoEmProducao != null && tempoRestante == 0) {
+                    filaProntos.enfileirar(pedidoEmProducao);
+                }
+                csvData.append(tempoAtual).append("|");
+                csvData.append(getIdsPizzas(filaPedidos)).append("|");
+                csvData.append(pedidoEmProducao != null ? 1 : 0).append("|");
+                csvData.append(getIdsPizzas(filaProntos)).append("\n");
 
                 tempoAtual++;
             }
-            
-            
         }
 
         System.out.println("Total de pedidos processados: " + pedidosProcessados);
         System.out.println("Total de tempo executado: " + tempoTotal);
         System.out.print("Pedidos em ordem: ");
         abp.emOrdem();
-        // Write CSV data to a file
-        escreverCSV("output.csv", titulos, csvData.toString().split("\n"));
+        // Escreve o arquivo CSV
+        escreverCSV("Simulação.csv", titulos, csvData.toString().split("\n"));
         
     }
-        /*if (contaPedidosMaisDemorados > 0) {
-            System.out.println("Pedidos mais demorados: ");
-            for (int i = 0; i < contaPedidosMaisDemorados; i++) {
-                System.out.println("Pedido: " + pedidosMaisDemorados[i].codigo);
-            }
-        }*/
-    
 
     private static void carregarPedidos(String arquivo, FilaPedidos filaPedidos) {
         try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
@@ -209,7 +208,7 @@ public class SimuladorPizzaria {
 
             // Escrever os dados
             for (String dado : dados) {
-                escritor.append(dado.replace("," , " | "));
+                escritor.append(dado.replace(";" , " | "));
                 escritor.append("\n");
             }
         } catch (IOException e) {
